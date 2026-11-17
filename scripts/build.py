@@ -39,6 +39,9 @@ def build(existing_packages=None):
     url = 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip'
     if not archive.exists():
         urllib.request.urlretrieve(url, archive)
+    expected = '009d6bf7e3b2ddca3d784fa09f90fe54336d5b60f0e0f305c37f400bf83cfd3b'
+    if hashlib.sha256(archive.read_bytes()).hexdigest() != expected:
+        raise RuntimeError('Embedded Python download failed SHA-256 verification')
     with zipfile.ZipFile(archive) as z:
         z.extractall(runtime)
     (runtime / 'python311._pth').write_text('python311.zip\n.\nLib/site-packages\nimport site\n')

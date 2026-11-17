@@ -29,6 +29,8 @@ jobs:
           if ($release.repository -ne '${{ github.repository }}') { throw 'Update release.json repository before releasing a fork' }
           node tests/updater.test.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Updater tests failed' }
+          node tests/download.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Download tests failed' }
           node tests/text-options.test.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Text tests failed' }
           node tests/cursor-range.test.cjs
