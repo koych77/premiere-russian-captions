@@ -28,8 +28,11 @@ jobs:
           if ('${{ github.ref_type }}' -eq 'tag' -and '${{ github.ref_name }}' -ne "v$($release.version)") { throw 'Tag and release.json version differ' }
           if ($release.repository -ne '${{ github.repository }}') { throw 'Update release.json repository before releasing a fork' }
           node tests/updater.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Updater tests failed' }
           node tests/text-options.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Text tests failed' }
           node tests/cursor-range.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Timeline tests failed' }
       - name: Build portable runtime
         run: python scripts/build.py
       - name: Test renderer
@@ -45,6 +48,9 @@ jobs:
           if ($file.Length -ge 2GB) { throw 'Installer exceeds GitHub asset size limit' }
           $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLower()
           "$hash  RussianCaptions-Setup.exe" | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+      - name: Verify clean installation, upgrade and uninstall
+        shell: pwsh
+        run: ./scripts/test-installer.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: RussianCaptions-Windows

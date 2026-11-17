@@ -44,7 +44,7 @@ def build(existing_packages=None):
     (runtime / 'python311._pth').write_text('python311.zip\n.\nLib/site-packages\nimport site\n')
     packages = runtime / 'Lib' / 'site-packages'
     if existing_packages:
-        shutil.copytree(existing_packages, packages, ignore=shutil.ignore_patterns('__pycache__', 'pip', 'pip-*', 'setuptools', 'setuptools-*', '_distutils_hack', 'pkg_resources'))
+        shutil.copytree(existing_packages, packages, ignore=shutil.ignore_patterns('__pycache__', 'pip', 'pip-*', 'setuptools', 'setuptools-*', '_distutils_hack', 'pkg_resources', 'distutils-precedence.pth'))
     else:
         subprocess.run([sys.executable, '-m', 'pip', 'install', '--only-binary=:all:', '--no-compile',
                         '--target', str(packages), '-r', str(ROOT / 'installer' / 'requirements.lock')], check=True)

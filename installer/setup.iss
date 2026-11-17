@@ -78,7 +78,7 @@ var Code: Integer;
 begin
   Result := '';
   if not Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
-    '-NoProfile -NonInteractive -Command "if (Get-Process -Name ''Adobe Premiere Pro'' -ErrorAction SilentlyContinue) { exit 1 }"',
+    '-NoProfile -NonInteractive -Command "if (Get-Process -Name ''Adobe Premiere Pro'' -ErrorAction SilentlyContinue) { exit 1 } else { exit 0 }"',
     '', SW_HIDE, ewWaitUntilTerminated, Code) then begin
     Result := 'Не удалось проверить, закрыт ли Premiere. Повтори установку.';
     exit;
