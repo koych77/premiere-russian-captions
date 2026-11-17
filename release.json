@@ -1,0 +1,7 @@
+{
+  "version": "3.1.0",
+  "repository": "koych77/premiere-russian-captions",
+  "asset": "RussianCaptions-Setup.exe",
+  "modelRepository": "mobiuslabsgmbh/faster-whisper-large-v3-turbo",
+  "modelRevision": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf"
+}

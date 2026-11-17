@@ -1,0 +1,13 @@
+/verification/
+/build/
+/build-tools/
+/dist/
+/adobe-reference.jsx
+/RESEARCH-*.md
+/design-qa.md
+/assets/focus-reference.png
+__pycache__/
+*.pyc
+.debug
+.env*
+*.log

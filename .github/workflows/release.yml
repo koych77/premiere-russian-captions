@@ -1,0 +1,59 @@
+name: Build Windows installer
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate version
+        shell: pwsh
+        run: |
+          $release = Get-Content release.json | ConvertFrom-Json
+          if ('${{ github.ref_type }}' -eq 'tag' -and '${{ github.ref_name }}' -ne "v$($release.version)") { throw 'Tag and release.json version differ' }
+          if ($release.repository -ne '${{ github.repository }}') { throw 'Update release.json repository before releasing a fork' }
+          node tests/updater.test.cjs
+          node tests/text-options.test.cjs
+          node tests/cursor-range.test.cjs
+      - name: Build portable runtime
+        run: python scripts/build.py
+      - name: Test renderer
+        run: build/payload/runtime/python.exe tests/test_renderer.py
+      - name: Compile installer
+        shell: pwsh
+        run: |
+          $compiler = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (!(Test-Path $compiler)) { throw 'Inno Setup compiler is missing on runner' }
+          & $compiler installer/setup.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+          $file = Get-Item dist/RussianCaptions-Setup.exe
+          if ($file.Length -ge 2GB) { throw 'Installer exceeds GitHub asset size limit' }
+          $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLower()
+          "$hash  RussianCaptions-Setup.exe" | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RussianCaptions-Windows
+          path: dist/*
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh release create '${{ github.ref_name }}' dist/RussianCaptions-Setup.exe dist/SHA256SUMS.txt --title 'Русские субтитры ${{ github.ref_name }}' --notes-file RELEASE-NOTES.md --verify-tag
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

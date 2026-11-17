@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');let cursor=0,exported=[],added=[];
+const imported={type:1,nodeId:'srt-node',getMediaPath:()=> 'C:/test.srt'},bin={type:2,name:'Русские субтитры',children:{numItems:1,0:imported}};
+const seq={sequenceID:'sequence',projectItem:{nodeId:'sequence-node'},name:'test',end:'24507463680000',zeroPoint:'0',timebase:'10160640000',audioTracks:{numTracks:0},videoTracks:{numTracks:0},getSettings:()=>({videoFrameWidth:2160,videoFrameHeight:3840}),getPlayerPosition:()=>({seconds:cursor}),getInPointAsTime:()=>({seconds:10}),getOutPointAsTime:()=>({seconds:20}),exportAsMediaDirect:(file,preset,range)=>exported.push({cursor,range}),createCaptionTrack:(item,start)=>{added.push({cursor,start});return true;}};
+const project={path:'C:/test.prproj',activeSequence:seq,sequences:{numSequences:1,0:seq},rootItem:{children:{numItems:1,0:bin}}};
+const scope={app:{project,projects:{numProjects:1,0:project}},File:function(p){this.fsName=p;this.exists=p!=='C:/new.wav'||exported.length>0;this.length=100;}};
+vm.createContext(scope);vm.runInContext(fs.readFileSync('G:/Макс/PremiereRussianCaptions/host.jsx','utf8'),scope);
+function call(method,args){const r=JSON.parse(scope.RussianCaptions.dispatch(method,args||{}));assert.equal(r.ok,true,r.error);return r.result;}
+const context=call('inspect');
+for(const position of [0,47.5,95.9]){cursor=position;assert.equal(call('inspect').fingerprint,context.fingerprint);exported.length=0;call('export',{context,audio:'C:/new.wav',preset:'C:/speech.epr',scope:'all'});assert.equal(exported[0].range,0);call('apply',{context,srt:'C:/test.srt',jobId:'at-'+position});assert.equal(added.at(-1).start,0);assert.equal(cursor,position);}
+exported.length=0;call('export',{context,audio:'C:/new.wav',preset:'C:/speech.epr',scope:'inout',offset:10,rangeEnd:20});assert.equal(exported[0].range,1);
+console.log('PASS: cursor 0 / 47.5 / 95.9 does not invalidate recognition or shift caption-track start; full sequence ignores In/Out; explicit In/Out retains its range.');
+seq.videoTracks={numTracks:1,0:{isMuted:()=>false,clips:{numItems:0}}};assert.notEqual(call('inspect').fingerprint,context.fingerprint);call('apply',{context,srt:'C:/test.srt',jobId:'video-only-change'});assert.equal(added.at(-1).start,0);
+seq.audioTracks={numTracks:1,0:{isMuted:()=>false,clips:{numItems:0}}};const rejected=JSON.parse(scope.RussianCaptions.dispatch('apply',{context,srt:'C:/test.srt',jobId:'audio-changed'}));assert.equal(rejected.ok,false);assert.match(rejected.error,/Звуковой монтаж/);console.log('PASS: video-only changes permit classical captions; audio changes require fresh recognition.');

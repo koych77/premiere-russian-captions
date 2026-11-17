@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const u=require('../updater');
+const config=require('../release.json');
+assert(u.newer('v3.10.0','3.9.9'));
+assert(!u.newer('3.1.0','3.1.0'));
+assert(!u.newer('2.9.0','3.1.0'));
+for(const value of ['v3.1.0-beta','3.01.0','garbage'])assert.throws(()=>u.version(value));
+for(const url of ['http://github.com/x','https://evil.test/x','https://github.com.evil.test/x','https://user@github.com/x','https://github.com:444/x'])assert.throws(()=>u.trusted(url));
+const release={tag_name:'v3.2.0',draft:false,prerelease:false,assets:[{name:config.asset,size:100,digest:'sha256:'+'a'.repeat(64),browser_download_url:'https://github.com/'+config.repository+'/releases/download/v3.2.0/'+config.asset}]};
+assert.equal(u.selectRelease(release,config).version,'3.2.0');
+assert.equal(u.selectRelease({...release,draft:true},config),null);
+assert.equal(u.selectRelease({...release,prerelease:true},config),null);
+assert.throws(()=>u.selectRelease({...release,assets:[{...release.assets[0],digest:null}]},config));
+assert.throws(()=>u.selectRelease({...release,assets:[{...release.assets[0],browser_download_url:'https://github.com/other/repo/file.exe'}]},config));
+assert.equal(u.selectRelease({...release,tag_name:'v3.0.0'},config),null);
+console.log('PASS: version ordering, stable releases, trusted hosts, repository binding, digest required');
