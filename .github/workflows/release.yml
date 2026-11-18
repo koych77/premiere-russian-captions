@@ -37,6 +37,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Timeline tests failed' }
           node tests/word-transfer.test.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Word transfer tests failed' }
+          node tests/output-workflows.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Output workflow tests failed' }
       - name: Build portable runtime
         run: python scripts/build.py
       - name: Test renderer
