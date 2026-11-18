@@ -21,4 +21,15 @@ function editCaption(c,text){const tokens=text.trim().split(/\s+/).filter(Boolea
 function formatCaptions(captions,s){const formatted=formatWords(captions.reduce((a,c)=>a.concat(c.words),[]),s);let at=0;return captions.map(c=>{const words=formatted.slice(at,at+c.words.length);at+=c.words.length;return Object.assign({},c,{words,text:wrap(words.map(w=>w.text).join(' '),Number(s.width))});});}
 function stamp(seconds){const m=Math.max(0,Math.round(seconds*1000));return String(Math.floor(m/3600000)).padStart(2,'0')+':'+String(Math.floor(m/60000)%60).padStart(2,'0')+':'+String(Math.floor(m/1000)%60).padStart(2,'0')+','+String(m%1000).padStart(3,'0');}
 function srt(captions){let last=0;return captions.filter(c=>c.text.trim()).map((c,i)=>{const start=Math.max(last,c.start),end=Math.max(start+.04,c.end);last=end;return(i+1)+'\n'+stamp(start)+' --> '+stamp(end)+'\n'+c.text+'\n';}).join('\n');}
-return{defaults,presets,stripPunctuation,formatWords,fromSegments,groupWords,formatCaptions,editCaption,wrap,stamp,srt};}));
+function moveBoundaryWord(captions,index,wordIndex,direction){
+ const source=captions[index],targetIndex=index+direction,target=captions[targetIndex];
+ if(!source||!target||(direction!==-1&&direction!==1))throw new Error('Нет соседней фразы.');
+ if(!source.words.length||wordIndex!==(direction===-1?0:source.words.length-1))throw new Error('К предыдущей фразе переносится первое слово, к следующей — последнее.');
+ const word=source.words[wordIndex];
+ source.words.splice(wordIndex,1);
+ if(direction===-1)target.words.push(word);else target.words.unshift(word);
+ [source,target].forEach(c=>{c.text=c.words.map(w=>w.text).join(' ');if(c.words.length){c.start=c.words[0].start;c.end=c.words[c.words.length-1].end;}});
+ if(!source.words.length){captions.splice(index,1);return direction===-1?index-1:index;}
+ return index;
+}
+return{defaults,presets,stripPunctuation,formatWords,fromSegments,groupWords,formatCaptions,editCaption,moveBoundaryWord,wrap,stamp,srt};}));

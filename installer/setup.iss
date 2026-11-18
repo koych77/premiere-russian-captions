@@ -1,4 +1,4 @@
-﻿#define Version "3.1.0"
+﻿#define Version "3.2.0"
 [Setup]
 AppId={{717FF47B-70D2-4971-8D98-139B84A08AA5}
 AppName=Русские субтитры для Premiere

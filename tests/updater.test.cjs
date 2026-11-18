@@ -1,6 +1,7 @@
 const assert=require('node:assert/strict');
 const u=require('../updater');
-const config=require('../release.json');
+// Keep the installed-version fixture independent of the version being shipped.
+const config={...require('../release.json'),version:'3.1.0'};
 assert(u.newer('v3.10.0','3.9.9'));
 assert(!u.newer('3.1.0','3.1.0'));
 assert(!u.newer('2.9.0','3.1.0'));
@@ -8,6 +9,7 @@ for(const value of ['v3.1.0-beta','3.01.0','garbage'])assert.throws(()=>u.versio
 for(const url of ['http://github.com/x','https://evil.test/x','https://github.com.evil.test/x','https://user@github.com/x','https://github.com:444/x'])assert.throws(()=>u.trusted(url));
 const release={tag_name:'v3.2.0',draft:false,prerelease:false,assets:[{name:config.asset,size:100,digest:'sha256:'+'a'.repeat(64),browser_download_url:'https://github.com/'+config.repository+'/releases/download/v3.2.0/'+config.asset}]};
 assert.equal(u.selectRelease(release,config).version,'3.2.0');
+assert.equal(u.selectRelease(release,{...config,version:'3.2.0'}),null);
 assert.equal(u.selectRelease({...release,draft:true},config),null);
 assert.equal(u.selectRelease({...release,prerelease:true},config),null);
 assert.throws(()=>u.selectRelease({...release,assets:[{...release.assets[0],digest:null}]},config));
