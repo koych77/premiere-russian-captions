@@ -13,7 +13,7 @@ def download(url, target, digest):
         partial = target.with_suffix(target.suffix + '.partial')
         urllib.request.urlretrieve(url, partial)
         if hashlib.sha256(partial.read_bytes()).hexdigest() != digest:
-            raise RuntimeError('Speaker model download failed SHA-256 verification')
+            raise RuntimeError(f'Speaker model download failed SHA-256 verification: {target.name}')
         partial.replace(target)
     if hashlib.sha256(target.read_bytes()).hexdigest() != digest:
         raise RuntimeError(f'Invalid speaker model artifact: {target.name}')
@@ -36,7 +36,7 @@ def prepare(destination, cache):
                 shutil.copyfileobj(data, out)
     embedding = cache / 'embedding.onnx'
     download(BASE + 'speaker-recongition-models/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx',
-             embedding, '1a331345f04805badbb495c775a6ddffcdd1a732567d5ec8b3d5749e3c7a5e4b')
+             embedding, 'f1ee61be04000b50392a63442e5dd9feaea7e81dddd494d3647cf1c3d88a1498')
     shutil.copy2(embedding, destination / 'embedding.onnx')
     license_file = Path(__file__).resolve().parents[1] / 'licenses' / '3D-Speaker-LICENSE'
     shutil.copy2(license_file, destination / license_file.name)

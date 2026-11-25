@@ -31,7 +31,7 @@ No fonts, user MOGRT templates, Adobe application binaries, project files,
 recordings, transcripts or user settings are distributed with this repository.
 
 
-## Local speaker diarization (3.4.0)
+## Local speaker diarization (3.4.1)
 
 - sherpa-onnx and sherpa-onnx-core 1.12.40: Apache-2.0, https://github.com/k2-fsa/sherpa-onnx . Package license notices remain in the installed runtime.
 - pyannote segmentation 3.0, ONNX conversion distributed by sherpa-onnx: MIT, copyright CNRS. Model license is included at models/speakers/SEGMENTATION-LICENSE.
