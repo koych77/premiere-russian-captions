@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="local.russian.captions" ExtensionBundleVersion="3.3.0" ExtensionBundleName="Русские субтитры">
-  <ExtensionList><Extension Id="local.russian.captions.panel" Version="3.3.0"/></ExtensionList>
+<ExtensionManifest Version="7.0" ExtensionBundleId="local.russian.captions" ExtensionBundleVersion="3.4.0" ExtensionBundleName="Русские субтитры">
+  <ExtensionList><Extension Id="local.russian.captions.panel" Version="3.4.0"/></ExtensionList>
   <ExecutionEnvironment>
     <HostList><Host Name="PPRO" Version="[25.0,99.9]"/></HostList>
     <LocaleList><Locale Code="All"/></LocaleList>

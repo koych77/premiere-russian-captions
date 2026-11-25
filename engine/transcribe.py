@@ -66,7 +66,7 @@ def captions_for_segment(segment, width):
     return captions
 
 
-def transcribe(source, output_dir, device='auto', width=32):
+def transcribe(source, output_dir, device='auto', width=32, language='ru', speakers=False):
     configure_runtime()
     import ctranslate2
     from faster_whisper import WhisperModel
@@ -93,25 +93,34 @@ def transcribe(source, output_dir, device='auto', width=32):
         actual_device = 'cpu'
         model = load_model(actual_device)
     started = time.monotonic()
-    segments, info = model.transcribe(str(source), language='ru', task='transcribe',
+    turns = []
+    if speakers:
+        from speakers import detect_turns
+        emit('status', message='Определяю смену говорящих…')
+        turns = detect_turns(source, progress=lambda fraction: emit(
+            'progress', percent=int(fraction * 15), message='Разделение говорящих'))
+    segments, info = model.transcribe(str(source), language=None if language == 'auto' else language, task='transcribe',
         beam_size=5, word_timestamps=True, vad_filter=True,
         vad_parameters={'min_silence_duration_ms': 500},
-        condition_on_previous_text=False)
-    emit('status', message=f'Распознавание русской речи: {info.duration:.1f} сек.')
+        condition_on_previous_text=False, hallucination_silence_threshold=1.0)
+    emit('status', message=f'Распознавание речи ({info.language}): {info.duration:.1f} сек.')
     captions, transcript, raw = [], [], []
     for segment in segments:
         captions.extend(captions_for_segment(segment, width))
         transcript.append(segment.text.strip())
         raw.append(asdict(segment))
-        emit('progress', percent=min(99, int(segment.end / max(info.duration, 0.001) * 100)),
+        emit('progress', percent=min(99, 15 + int(segment.end / max(info.duration, 0.001) * 84)),
              message=segment.text.strip())
     if not captions:
         raise RuntimeError('Речь не обнаружена. Проверьте звуковую дорожку выбранного файла.')
-    stem = source.stem + '.ru'
+    if speakers:
+        from speakers import assign_words
+        assign_words(raw, turns)
+    stem = source.stem + '.' + info.language
     suffix = 0
     while any((output_dir / (stem + extension)).exists() for extension in ('.srt', '.txt', '.json')):
         suffix += 1
-        stem = source.stem + f'.ru-{suffix}'
+        stem = source.stem + f'.{info.language}-{suffix}'
     srt = output_dir / (stem + '.srt')
     txt = output_dir / (stem + '.txt')
     details = output_dir / (stem + '.json')
@@ -126,9 +135,9 @@ def transcribe(source, output_dir, device='auto', width=32):
         last_end = end
     srt.write_text('\n'.join(entries), encoding='utf-8-sig')
     txt.write_text('\n'.join(transcript) + '\n', encoding='utf-8-sig')
-    details.write_text(json.dumps({'source': str(source), 'language': 'ru',
+    details.write_text(json.dumps({'source': str(source), 'language': info.language,
         'model': 'large-v3-turbo', 'device': actual_device, 'duration': info.duration,
-        'segments': raw}, ensure_ascii=False, indent=2), encoding='utf-8')
+        'speakerTurns': turns, 'segments': raw}, ensure_ascii=False, indent=2), encoding='utf-8')
     emit('done', srt=str(srt), txt=str(txt), captions=len(entries), device=actual_device,
          elapsed=round(time.monotonic() - started, 1))
 
@@ -141,9 +150,11 @@ if __name__ == '__main__':
     parser.add_argument('--output-dir')
     parser.add_argument('--device', choices=['auto', 'cuda', 'cpu'], default='auto')
     parser.add_argument('--width', type=int, default=32)
+    parser.add_argument('--language', choices=['ru', 'auto', 'en', 'uk', 'de', 'fr', 'es', 'it', 'tr', 'zh'], default='ru')
+    parser.add_argument('--speakers', action='store_true')
     args = parser.parse_args()
     try:
-        transcribe(args.source, args.output_dir or str(Path(args.source).parent), args.device, args.width)
+        transcribe(args.source, args.output_dir or str(Path(args.source).parent), args.device, args.width, args.language, args.speakers)
     except Exception as error:
         emit('error', message=str(error))
         sys.exit(1)

@@ -1,4 +1,4 @@
-﻿#define Version "3.3.0"
+﻿#define Version "3.4.0"
 [Setup]
 AppId={{717FF47B-70D2-4971-8D98-139B84A08AA5}
 AppName=Русские субтитры для Premiere
@@ -34,6 +34,7 @@ Source: "..\build\payload\runtime\*"; DestDir: "{app}\runtime"; Flags: ignorever
 Source: "..\build\payload\*.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\build\payload\*.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\build\payload\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\payload\models\speakers\*"; DestDir: "{app}\models\speakers"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{tmp}\model.bin"; DestDir: "{app}\models\large-v3-turbo"; Flags: external ignoreversion skipifsourcedoesntexist uninsneveruninstall
 Source: "{tmp}\config.json"; DestDir: "{app}\models\large-v3-turbo"; Flags: external ignoreversion skipifsourcedoesntexist uninsneveruninstall
 Source: "{tmp}\tokenizer.json"; DestDir: "{app}\models\large-v3-turbo"; Flags: external ignoreversion skipifsourcedoesntexist uninsneveruninstall

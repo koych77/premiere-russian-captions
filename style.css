@@ -17,3 +17,9 @@ footer{flex-shrink:0;border-top:1px solid var(--line);padding-top:7px;margin-top
 @media(max-height:440px){body{height:auto;min-height:100vh;overflow:auto}main{flex:none;overflow:visible}#tab-text{height:auto;overflow:visible}#editor,#title-controls{flex:none;overflow:visible}}
 
 #manual-summary{white-space:pre-wrap;font-size:14px;overflow-wrap:anywhere}#manual-editor #title-text{min-height:140px}
+/* Subtitle editor: selection actions stay next to the text. */
+#caption-tools{display:flex;align-items:end;gap:8px;flex-shrink:0;margin-bottom:6px}#caption-tools label{flex:1;min-width:0;margin:0}#caption-tools button{flex:0 1 42%;min-width:110px;overflow-wrap:anywhere;font-size:12px;min-height:36px}
+.inline-feedback{display:none;grid-column:2;margin:3px 0 0;font-size:11px}.caption-row.selected .inline-feedback,.caption-row:focus-within .inline-feedback{display:block}
+.case-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:10px 0 18px}.case-cards button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;min-height:78px;overflow-wrap:anywhere}.case-cards strong,.case-cards small{display:block}.case-cards small{font-size:12px;color:var(--muted);margin-top:5px}.case-cards button[aria-pressed=true]{background:#283e47;border-color:var(--accent)}.case-cards button[aria-pressed=true] strong{color:var(--accent)}
+#grouping>.switch-label{display:flex;align-items:center;justify-content:space-between;min-height:40px;padding-right:2px}#timeline-note{font-size:11px;max-height:42px;overflow:auto;margin:3px 0 5px}#caption-library h3{margin-top:20px}#caption-library .word-actions button{font-size:12px}
+@media(max-width:420px){.inline-feedback{grid-column:1/-1}.case-cards{grid-template-columns:1fr}}

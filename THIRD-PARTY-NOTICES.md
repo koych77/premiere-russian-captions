@@ -30,3 +30,10 @@ Exact Python package versions are recorded in `installer/requirements.lock`.
 No fonts, user MOGRT templates, Adobe application binaries, project files,
 recordings, transcripts or user settings are distributed with this repository.
 
+
+## Local speaker diarization (3.4.0)
+
+- sherpa-onnx and sherpa-onnx-core 1.12.40: Apache-2.0, https://github.com/k2-fsa/sherpa-onnx . Package license notices remain in the installed runtime.
+- pyannote segmentation 3.0, ONNX conversion distributed by sherpa-onnx: MIT, copyright CNRS. Model license is included at models/speakers/SEGMENTATION-LICENSE.
+- 3D-Speaker ERes2Net base model, ONNX conversion distributed by sherpa-onnx: Apache-2.0. Source: https://github.com/modelscope/3D-Speaker . License included at models/speakers/3D-Speaker-LICENSE.
+- Model artifact URLs and SHA-256 digests: scripts/speaker_models.py. Models run locally and do not transmit audio.

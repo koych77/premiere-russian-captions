@@ -14,6 +14,8 @@ if (!(Test-Path (Join-Path $panelRoot 'CSXS\manifest.xml'))) { throw 'Panel was 
 if ($LASTEXITCODE -ne 0) { throw 'Installed renderer failed' }
 & $python -c 'import sys; from faster_whisper import WhisperModel; WhisperModel(sys.argv[1], device="cpu", compute_type="int8", local_files_only=True); print("Installed ASR model loaded on CPU")' (Join-Path $installRoot 'models\large-v3-turbo')
 if ($LASTEXITCODE -ne 0) { throw 'Installed ASR model failed' }
+& $python "$PSScriptRoot\..\tests\test_speaker_runtime.py" $installRoot
+if ($LASTEXITCODE -ne 0) { throw 'Installed speaker runtime failed' }
 $state = Join-Path $installRoot 'premiere-panel'
 New-Item -ItemType Directory -Path $state -Force | Out-Null
 $sentinel = Join-Path $state 'settings-preservation-test.json'

@@ -39,10 +39,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Word transfer tests failed' }
           node tests/output-workflows.test.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Output workflow tests failed' }
+          node tests/subtitle-editor.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Subtitle editor tests failed' }
+          node tests/recognition-flow.test.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Recognition flow tests failed' }
+          python tests/test_speakers.py
+          if ($LASTEXITCODE -ne 0) { throw 'Speaker assignment tests failed' }
       - name: Build portable runtime
         run: python scripts/build.py
       - name: Test renderer
         run: build/payload/runtime/python.exe tests/test_renderer.py
+      - name: Test speaker runtime
+        run: build/payload/runtime/python.exe tests/test_speaker_runtime.py build/payload
       - name: Compile installer
         shell: pwsh
         run: |

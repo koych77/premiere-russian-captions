@@ -9,7 +9,7 @@ const code=between('function contextKey(', 'function sessionIndex(')+between('fu
 function fixture({manual=false,stale=false,output='mogrt',playhead=47.5}={}){
  const current={sequenceID:'seq',projectPath:'C:/project.prproj',name:'Sequence',fingerprint:'current',audioFingerprint:'audio',playhead};
  const original={id:'speech',dir:'C:/speech',context:{...current,fingerprint:stale?'stale':'current'},captions:[{start:2,end:4,text:'Речь',words:[{text:'Речь',start:2,end:4}]}]};
- const nodes={'title-text':{value:'Мой титр!'},'title-duration':{value:'3'},'mogrt-field':{value:'0'},progress:{value:0}};
+ const nodes={'title-text':{value:'Мой титр!'},'title-duration':{value:'3'},'mogrt-field':{value:'0'},'timeline-note':{hidden:true,textContent:''},progress:{value:0}};
  const calls=[],errors=[],writes=[];
  const env={C,path,settings:{...C.defaults,output},context:null,mode:manual?'titles':'captions',job:original,captions:original.captions,busy:false,cancelled:false,mogrt:{path:'C:/title.mogrt',fields:[{name:'Text'}]},$:id=>nodes[id],setBusy:v=>env.busy=v,saveJob:()=>{},record:()=>{},status:(message,error)=>{if(error)errors.push(message);},newJob:ctx=>({id:'manual',dir:'C:/manual',context:ctx,revision:0}),fs:{writeFileSync:(...args)=>writes.push(args)},host:async(method,args)=>{calls.push({method,args});return method==='inspect'?{...current}:{count:1,track:2,fingerprint:'after-template'};}};
  vm.createContext(env);vm.runInContext(code,env);

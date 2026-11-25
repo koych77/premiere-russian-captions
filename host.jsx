@@ -182,6 +182,14 @@ var RussianCaptions = (function () {
             else if(method==='overlay') result=addOverlay(args);
             else if(method==='mogrts') result=addMogrts(args);
             else if(method==='chooseMogrt'){var chosen=File.openDialog('Выберите текстовый MOGRT','Motion Graphics Templates:*.mogrt',false);result=chosen?chosen.fsName:null;}
+            else if(method==='chooseTextStyle'){var styleFile=File.openDialog('Выберите экспортированный стиль Premiere','Premiere Text Style:*.prtextstyle',false);result=styleFile?styleFile.fsName:null;}
+            else if(method==='importTextStyle'){
+                var styleProject=project(),styleSource=new File(args.file);
+                if(styleProject.path!==args.projectPath)throw new Error('Активный проект изменился. Выберите стиль для открытого проекта.');
+                if(!styleSource.exists||!/\.prtextstyle$/i.test(styleSource.name))throw new Error('Не найден файл стиля .prtextstyle.');
+                if(!styleProject.importFiles([styleSource.fsName],true,styleProject.rootItem,false))throw new Error('Premiere не смог импортировать стиль. Используйте импорт стиля в панели «Свойства».');
+                result=true;
+            }
             else if(method==='seek'){var seq=resolve(args.context);seq.setPlayerPosition(seconds(args.time).ticks);result=true;}
             else throw new Error('Неизвестная операция.');
             return stringify({ok:true,result:result});

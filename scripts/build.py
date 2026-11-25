@@ -11,7 +11,7 @@ import urllib.request
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PANEL_FILES = ['index.html', 'style.css', 'core.js', 'renderer.js', 'panel.js',
+PANEL_FILES = ['index.html', 'style.css', 'core.js', 'editor-state.js', 'renderer.js', 'panel.js',
                'fonts.js', 'font_catalog.py', 'mogrt_catalog.py', 'host.jsx',
                'runtime.js', 'updater.js', 'updates-ui.js', 'release.json']
 
@@ -29,7 +29,7 @@ def build(existing_packages=None):
         shutil.copy2(ROOT / name, panel / name)
     for name in ['lib', 'presets', 'CSXS', 'assets/icons']:
         shutil.copytree(ROOT / name, panel / name)
-    for name in ['transcribe.py', 'render_video.py']:
+    for name in ['transcribe.py', 'speakers.py', 'render_video.py']:
         shutil.copy2(ROOT / 'engine' / name, stage / name)
     for name in ['README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md']:
         shutil.copy2(ROOT / name, stage / name)
@@ -55,7 +55,9 @@ def build(existing_packages=None):
     msvc = Path(os.environ['WINDIR']) / 'System32' / 'msvcp140.dll'
     shutil.copy2(msvc, runtime / msvc.name)
     subprocess.run([str(runtime / 'python.exe'), '-I', '-c',
-                    'import av,ctranslate2,faster_whisper,numpy;print("Portable runtime OK")'], check=True)
+                    'import av,ctranslate2,faster_whisper,numpy,sherpa_onnx;print("Portable runtime OK")'], check=True)
+    from speaker_models import prepare
+    prepare(stage / 'models' / 'speakers', ROOT / 'build' / 'speakers')
     config = json.loads((ROOT / 'release.json').read_text(encoding='utf-8-sig'))
     files = json.loads((ROOT / 'installer' / 'model-files.json').read_text(encoding='utf-8-sig'))
     statements = []
